@@ -1,0 +1,120 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+    <title>ToneSpace API Tester</title> 
+    <style> 
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; } 
+        .endpoint { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; } 
+        button { padding: 8px 15px; margin: 5px 0; cursor: pointer; } 
+        pre { background: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; } 
+        .success { color: green; } 
+        .error { color: red; } 
+    </style> 
+</head> 
+<body> 
+    <h1>ToneSpace API Tester</h1> 
+    <div class="endpoint"> 
+        <h2>1. Register User</h2> 
+        <div> 
+            <input type="text" id="regUsername" placeholder="Username" value="testuser"> 
+            <input type="email" id="regEmail" placeholder="Email" value="test@example.com"> 
+            <input type="password" id="regPassword" placeholder="Password" value="password"> 
+            <button onclick="registerUser()">Register</button> 
+        </div> 
+        <pre id="registerResult"></pre> 
+    </div> 
+    <div class="endpoint"> 
+        <h2>2. Login</h2> 
+        <div> 
+            <input type="text" id="loginUsername" placeholder="Username" value="testuser"> 
+            <input type="password" id="loginPassword" placeholder="Password" value="password"> 
+            <button onclick="loginUser()">Login</button> 
+        </div> 
+        <pre id="loginResult"></pre> 
+    </div> 
+    <div class="endpoint"> 
+        <h2>3. Save Mood</h2> 
+        <div> 
+            <input type="text" id="moodUserId" placeholder="User ID" value="1"> 
+            <select id="mood"> 
+                <option value="happy">Happy</option> 
+                <option value="sad">Sad</option> 
+                <option value="angry">Angry</option> 
+                <option value="calm">Calm</option> 
+                <option value="anxious">Anxious</option> 
+            </select> 
+            <input type="text" id="moodNotes" placeholder="Notes" value="Feeling good today"> 
+            <button onclick="saveMood()">Save Mood</button> 
+        </div> 
+        <pre id="moodResult"></pre> 
+    </div> 
+    <script> 
+        const API_BASE = 'http://localhost/TONESPACE_backend'; 
+ 
+        async function makeRequest(url, method = 'GET', data = null) { 
+            const options = { 
+                method, 
+                headers: { 'Content-Type': 'application/json' }, 
+            }; 
+ECHO is off.
+            if (data) { 
+                options.body = JSON.stringify(data); 
+            } 
+ 
+            try { 
+                const response = await fetch(url, options); 
+                const result = await response.json(); 
+                return { success: response.ok, data: result }; 
+            } catch (error) { 
+                return { success: false, error: error.message }; 
+            } 
+        } 
+ 
+        async function registerUser() { 
+            const username = document.getElementById('regUsername').value; 
+            const email = document.getElementById('regEmail').value; 
+            const password = document.getElementById('regPassword').value; 
+ 
+            const result = await makeRequest(`${API_BASE}/register.php`, 'POST', { 
+                username, 
+                email, 
+                password 
+            }); 
+ 
+            const output = document.getElementById('registerResult'); 
+            output.className = result.success ? 'success' : 'error'; 
+        } 
+ 
+        async function loginUser() { 
+            const username = document.getElementById('loginUsername').value; 
+            const password = document.getElementById('loginPassword').value; 
+ 
+            const result = await makeRequest(`${API_BASE}/login.php`, 'POST', { 
+                username, 
+                password 
+            }); 
+ 
+            const output = document.getElementById('loginResult'); 
+            output.className = result.success ? 'success' : 'error'; 
+ 
+                document.getElementById('moodUserId').value = result.data.user_id; 
+            } 
+        } 
+ 
+        async function saveMood() { 
+            const userId = document.getElementById('moodUserId').value; 
+            const mood = document.getElementById('mood').value; 
+            const notes = document.getElementById('moodNotes').value; 
+ 
+            const result = await makeRequest(`${API_BASE}/save_mood.php`, 'POST', { 
+                user_id: userId, 
+                mood, 
+                notes 
+            }); 
+ 
+            const output = document.getElementById('moodResult'); 
+            output.className = result.success ? 'success' : 'error'; 
+        } 
+    </script> 
+</body> 
+</html> 
